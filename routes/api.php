@@ -4,8 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController; 
 use App\Http\Controllers\QuizController;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
+
+use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SettingsController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -28,23 +32,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/quiz/{id}', [QuizController::class, 'show']);
     
     Route::middleware('admin')->group(function () {
-        Route::post('/admin/questions/import', [AdminController::class, 'import']);
-        Route::get('/admin/questions/export', [AdminController::class, 'export']);
+        Route::get('/admin/questions', [QuestionController::class, 'index']);
+        Route::post('/admin/questions', [QuestionController::class, 'store']);
+        Route::put('/admin/questions/{id}', [QuestionController::class, 'update']);
+        Route::delete('/admin/questions/{id}', [QuestionController::class, 'destroy']);
+        
+        Route::post('/admin/questions/import', [QuestionController::class, 'import']);
+        Route::get('/admin/questions/export', [QuestionController::class, 'export']);
 
-        Route::get('/admin/settings', [AdminController::class, 'getSettings']);
-        Route::post('/admin/settings', [AdminController::class, 'updateSettings']);
-
-        Route::get('/admin/insights', [AdminController::class, 'insights']);
+        Route::get('/admin/settings', [SettingsController::class, 'index']);
+        Route::post('/admin/settings', [SettingsController::class, 'update']);
         
-        Route::get('/admin/users', [AdminController::class, 'listUsers']);
-        Route::post('/admin/users/{id}/toggle-admin', [AdminController::class, 'toggleAdmin']);
-        Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser']);
+        Route::get('/admin/insights', [DashboardController::class, 'insights']);
+        Route::get('/admin/quizzes', [DashboardController::class, 'quizzesHistory']);
         
-        Route::get('/admin/quizzes', [AdminController::class, 'quizzesHistory']);
-        
-        Route::get('/admin/questions', [AdminController::class, 'listQuestions']);
-        Route::post('/admin/questions', [AdminController::class, 'storeQuestion']);
-        Route::put('/admin/questions/{id}', [AdminController::class, 'updateQuestion']);
-        Route::delete('/admin/questions/{id}', [AdminController::class, 'deleteQuestion']);
+        Route::get('/admin/users', [UserManagementController::class, 'index']);
+        Route::post('/admin/users/{id}/toggle-admin', [UserManagementController::class, 'toggleAdmin']);
+        Route::delete('/admin/users/{id}', [UserManagementController::class, 'destroy']);
     });
 });

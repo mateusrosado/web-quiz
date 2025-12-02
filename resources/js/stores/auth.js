@@ -45,9 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
     async function register(formData) {
         try {
             const response = await axios.post('/register', formData);
-            
             setToken(response.data.access_token, response.data.user);
-            
             return true;
         } catch (error) {
             console.error('Erro no registro:', error);
@@ -64,6 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
             console.error('Erro ao realizar logout no servidor:', error);
         } finally {
             clearToken();
+            window.location.href = '/login';
         }
     }
 

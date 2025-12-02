@@ -1,36 +1,41 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
-import Ranking from '../pages/Ranking.vue';
-import Login from '../pages/Login.vue';
-import Register from '../pages/Register.vue';
-import QuizHistory from '../pages/QuizHistory.vue';
-import Game from '../pages/Game.vue';
-import AdminPanel from '../pages/AdminPanel.vue';
-import UserDashboard from '../pages/UserDashboard.vue';
-
 const routes = [
-    { path: '/', component: Ranking, name: 'Ranking' },
-    { path: '/login', component: Login, name: 'Login' },
-    { path: '/register', component: Register, name: 'Register' },
+    { 
+        path: '/', 
+        name: 'Ranking',
+        component: () => import('../pages/Ranking.vue') 
+    },
+    { 
+        path: '/login', 
+        name: 'Login',
+        component: () => import('../pages/Login.vue') 
+    },
+    { 
+        path: '/register', 
+        name: 'Register',
+        component: () => import('../pages/Register.vue') 
+    },
     {
         path: '/quiz/:id',
-        component: QuizHistory,
+        component: () => import('../pages/QuizHistory.vue'),
         meta: { requiresAuth: true }
     },
     { 
         path: '/game', 
-        component: Game, 
-        meta: { requiresAuth: true } 
+        component: () => import('../pages/Game.vue'),
+        meta: { requiresAuth: true, hideNavbar: true } 
     },
-    { path: '/profile',
-        component: UserDashboard,
+    { 
+        path: '/profile',
+        component: () => import('../pages/UserDashboard.vue'),
         meta: { requiresAuth: true }
     },
     { 
         path: '/admin',
-        component: AdminPanel,
-        meta: { requiresAuth: true, requiresAdmin: true }
+        component: () => import('../pages/AdminPanel.vue'),
+        meta: { requiresAuth: true, hideNavbar: true, requiresAdmin: true}
     },
 ];
 

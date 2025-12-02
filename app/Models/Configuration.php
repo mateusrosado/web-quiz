@@ -2,27 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Configuration extends Model
 {
-    protected $primaryKey = 'key';
-    public $incrementing = false;
-    protected $keyType = 'string';
+    use HasFactory;
 
     protected $fillable = ['key', 'value'];
 
-    public static function get(string $key, $default = null)
+    public static function get($key, $default = null)
     {
-        $config = self::find($key);
-        return $config ? $config->value : $default;
+        return self::where('key', $key)->value('value') ?? $default;
     }
 
-    public static function set(string $key, $value)
+    public static function set($key, $value)
     {
-        return self::updateOrCreate(
-            ['key' => $key],
-            ['value' => $value]
-        );
+        return self::updateOrCreate(['key' => $key], ['value' => $value]);
     }
 }

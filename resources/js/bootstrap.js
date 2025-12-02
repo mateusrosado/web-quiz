@@ -10,7 +10,7 @@ window.axios.interceptors.response.use(
     },
     (error) => {
         if (error.response && error.response.status === 401) {
-            console.warn('Sessão expirada ou não autorizado. Redirecionando para login...');
+            console.warn('Sessão expirada. Redirecionando...');
             
             localStorage.removeItem('token');
             localStorage.removeItem('user');

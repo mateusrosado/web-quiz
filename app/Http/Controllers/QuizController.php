@@ -21,9 +21,21 @@ class QuizController extends Controller
     {
         $limit = (int) Configuration::get('quiz_question_limit', 10);
 
-        $questions = Question::with(['options' => function($query) {
-            $query->inRandomOrder();
-        }])->inRandomOrder()->take($limit)->get();
+        $allIds = Question::pluck('id');
+
+        if ($allIds->isEmpty()) {
+            return response()->json(['message' => 'Nenhuma pergunta disponível.'], 400);
+        }
+
+        $randomIds = $allIds->count() <= $limit 
+            ? $allIds 
+            : $allIds->random($limit);
+
+        $questions = Question::with(['options'])
+            ->whereIn('id', $randomIds)
+            ->get();
+
+        $questions = $questions->shuffle();
 
         $questionIds = $questions->pluck('id')->toArray();
 
@@ -92,9 +104,13 @@ class QuizController extends Controller
                     ->where('user_id', $request->user()->id)
                     ->firstOrFail();
 
+        $completedAt = now();
+
+        $duration = $quiz->created_at->diffInSeconds($completedAt);
+
         $quiz->update([
-            'duration' => $request->duration,
-            'completed_at' => now()
+            'duration' => $duration,
+            'completed_at' => $completedAt
         ]);
         
         return response()->json([
@@ -105,15 +121,30 @@ class QuizController extends Controller
 
     public function ranking()
     {
-        $ranking = Quiz::with('user:id,name')
+        $topUsers = \App\Models\User::withSum('quizzes', 'score')
+            ->orderByDesc('quizzes_sum_score')
+            ->take(3)
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'total_xp' => $user->quizzes_sum_score ?? 0,
+                    'level' => floor(($user->quizzes_sum_score ?? 0) / 100) + 1 
+                ];
+            });
+
+        $topQuizzes = Quiz::with('user:id,name')
             ->whereNotNull('completed_at')
-            ->has('user')
             ->orderByDesc('score')
             ->orderBy('duration')
             ->take(10)
             ->get();
 
-        return QuizResource::collection($ranking);
+        return response()->json([
+            'top_users' => $topUsers,
+            'top_quizzes' => QuizResource::collection($topQuizzes)
+        ]);
     }
 
     public function show(string $id, Request $request)

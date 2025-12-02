@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, shallowRef, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
@@ -73,7 +73,7 @@ import OptionCard from '../components/game/OptionCard.vue';
 
 const router = useRouter();
 
-const questions = ref([]);
+const questions = shallowRef([]);
 const currentIndex = ref(0);
 const loading = ref(true);
 const quizId = ref(null);
@@ -157,9 +157,8 @@ const nextQuestion = () => {
 };
 
 const finishGame = async () => {
-    const duration = Math.floor((Date.now() - startTime.value) / 1000);
     try {
-        await axios.post(`/quiz/finish/${quizId.value}`, { duration });
+        await axios.post(`/quiz/finish/${quizId.value}`);
         gameFinished.value = true;
     } catch (e) {
         console.error(e);
