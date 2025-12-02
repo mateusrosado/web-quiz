@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useRouter, useRoute } from 'vue-router';
 import { Menu, X, LogOut, User, LayoutDashboard, Gamepad2 } from 'lucide-vue-next';
@@ -15,16 +15,14 @@ const handleLogout = async () => {
     mobileMenuOpen.value = false;
     userDropdownOpen.value = false;
     await authStore.logout();
-    // A remoção do router.push('/login') aqui é feita no finally do auth.js
+    router.push('/login');
 };
 
-// Navegação para Perfil
 const goToProfile = () => {
     userDropdownOpen.value = false;
     router.push('/profile');
 };
 
-// Funções utilitárias (mantidas iguais)
 const isActive = (path) => route.path === path;
 const mobileLinkClass = (path) => {
     const base = "block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition duration-150 ease-in-out";
@@ -35,14 +33,14 @@ const mobileLinkClass = (path) => {
 </script>
 
 <template>
-    <nav class="bg-white border-b border-gray-100 fixed top-0 w-full z-50 shadow-lg">
+    <nav class="bg-white border-b border-gray-100 sticky top-0 w-full z-50 shadow-lg">
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16">
-
-            <div class="flex justify-between items-center h-full relative">
+            
+            <div class="flex justify-between items-center h-full">
                 
-                <div class="flex-shrink-0 flex items-center h-full">
-                    <router-link to="/">
+                <div class="flex items-center">
+                    <router-link to="/" class="shrink-0 flex items-center">
                         <div class="flex items-center gap-2">
                             <div class="bg-[#094789] text-white p-1.5 rounded-lg">
                                 <Gamepad2 :size="24" />
@@ -52,14 +50,15 @@ const mobileLinkClass = (path) => {
                     </router-link>
                 </div>
 
-                <div class="absolute left-1/2 transform -translate-x-1/2 h-full hidden sm:flex items-center">
-                    <router-link v-if="authStore.isAuthenticated" to="/game" 
-                        class="inline-flex items-center px-6 py-2 bg-[#FBC209] border border-transparent rounded-full font-semibold text-sm text-[#094789] uppercase tracking-widest hover:bg-yellow-400 transition shadow-md shadow-yellow-500/30">
+                <div class="absolute left-1/2 transform -translate-x-1/2 hidden sm:flex h-full items-center">
+                     <router-link v-if="authStore.isAuthenticated" to="/game" 
+                        class="inline-flex items-center px-6 py-2 bg-[#FBC209] border border-transparent rounded-full font-bold text-sm text-[#094789] uppercase tracking-widest hover:bg-yellow-400 transition shadow-md">
                         <Gamepad2 :size="18" class="mr-2" />
                         JOGAR AGORA
                     </router-link>
                 </div>
-                
+
+
                 <div class="flex items-center space-x-4 h-full">
                     
                     <template v-if="authStore.isAuthenticated">
@@ -67,7 +66,7 @@ const mobileLinkClass = (path) => {
                             <LayoutDashboard :size="16" /> Admin
                         </router-link>
 
-                        <div class="relative ml-3" tabindex="0" @focusout="setTimeout(() => { userDropdownOpen = false }, 150)"> 
+                        <div class="relative ml-3" tabindex="0" @focusout="setTimeout(() => { userDropdownOpen = false }, 200)"> 
                             <button @click="userDropdownOpen = !userDropdownOpen" class="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[#094789] transition focus:outline-none">
                                 <span>{{ authStore.user?.name }}</span>
                                 <div class="h-8 w-8 rounded-full bg-[#094789]/10 flex items-center justify-center text-[#094789]">
@@ -75,8 +74,8 @@ const mobileLinkClass = (path) => {
                                 </div>
                             </button>
                             
-                            <div :class="{ 'block': userDropdownOpen, 'hidden': !userDropdownOpen }" 
-                                 class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100">
+                            <div v-show="userDropdownOpen" 
+                                 class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-xl py-1 border border-gray-100 z-50">
                                 
                                 <button @click="goToProfile" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                                     Meu Perfil
@@ -96,7 +95,7 @@ const mobileLinkClass = (path) => {
                     </template>
                 </div>
 
-                <div class="-mr-2 flex items-center sm:hidden h-full"> 
+                <div class="-mr-2 flex items-center sm:hidden">
                     <button @click="mobileMenuOpen = !mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-gray-100 focus:outline-none transition">
                         <Menu v-if="!mobileMenuOpen" :size="24" />
                         <X v-else :size="24" />
@@ -105,20 +104,11 @@ const mobileLinkClass = (path) => {
             </div>
         </div>
 
-        <div v-show="mobileMenuOpen" class="absolute w-full top-16 left-0 sm:hidden border-t border-gray-200 bg-white shadow-xl">
+        <div v-show="mobileMenuOpen" class="sm:hidden border-t border-gray-200 bg-white shadow-inner">
             <div class="pt-2 pb-3 space-y-1">
-                <router-link v-if="authStore.isAuthenticated" to="/game" 
-                    class="block w-full text-center px-4 py-3 bg-[#FBC209] text-[#094789] font-semibold rounded-lg" 
-                    @click="mobileMenuOpen = false">
-                    <div class="flex items-center justify-center gap-2 text-base">
-                        <Gamepad2 :size="18"/> JOGAR AGORA
-                    </div>
-                </router-link>
-
+                <router-link v-if="authStore.isAuthenticated" to="/game" :class="mobileLinkClass('/game')" @click="mobileMenuOpen = false">Jogar Agora</router-link>
                 <router-link v-if="authStore.isAdmin" to="/admin" :class="mobileLinkClass('/admin')" @click="mobileMenuOpen = false">Painel Admin</router-link>
-                <router-link to="/" :class="mobileLinkClass('/')" @click="mobileMenuOpen = false">Ranking</router-link>
             </div>
-            
             <div class="pt-4 pb-4 border-t border-gray-200">
                 <template v-if="authStore.isAuthenticated">
                     <div class="flex items-center px-4 mb-4">
@@ -133,7 +123,7 @@ const mobileLinkClass = (path) => {
                         </div>
                     </div>
                     <div class="space-y-1">
-                        <button @click="goToProfile" class="block w-full text-left px-4 py-2 text-base font-medium text-slate-600 hover:text-[#094789] hover:bg-gray-50">
+                        <button @click="goToProfile" class="block w-full text-left px-4 py-2 text-base font-medium text-slate-600 hover:text-[#094789] hover:bg-gray-50" @click.stop="mobileMenuOpen = false">
                             <div class="flex items-center gap-2"><User :size="18"/> Meu Perfil</div>
                         </button>
                         <button @click="handleLogout" class="block w-full text-left px-4 py-2 text-base font-medium text-rose-600 hover:bg-rose-50">
@@ -155,6 +145,4 @@ const mobileLinkClass = (path) => {
             </div>
         </div>
     </nav>
-    
-    <div class="h-16 lg:h-16"></div> 
 </template>

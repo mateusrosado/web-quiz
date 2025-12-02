@@ -20,6 +20,8 @@ class Quiz extends Model
 
     protected $casts = [
         'questions_list' => 'array', 
+        'completed_at' => 'datetime',
+        'duration' => 'float',
     ];
 
     public function user(): BelongsTo

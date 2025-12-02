@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-[#F3F0EA] text-[#1E1E4B] flex flex-col font-sans relative">
+    <div class="min-h-screen bg-gray-50 text-[#094789] flex flex-col font-sans relative">
         
         <GameHeader 
             :score="currentScore" 
@@ -39,11 +39,11 @@
             </div>
 
             <div v-else class="text-center mt-20">
-                <h2 class="text-4xl font-bold text-[#4ADE80] mb-4">Quiz Finalizado!</h2>
+                <h2 class="text-4xl font-bold text-[#094789] mb-4">Quiz Finalizado!</h2>
                 <p class="text-xl mb-2">Sua pontuação final:</p>
-                <div class="text-6xl font-black text-[#1E1E4B] mb-8">{{ currentScore }}</div>
+                <div class="text-6xl font-black text-[#094789] mb-8">{{ currentScore }}</div>
                 
-                <button @click="router.push('/')" class="bg-[#1E1E4B] text-white px-8 py-3 rounded-xl font-bold hover:bg-opacity-90">
+                <button @click="router.push('/')" class="bg-[#FBC209] text-[#094789] px-8 py-3 rounded-xl font-bold hover:bg-yellow-400 transition shadow-lg">
                     Voltar ao Ranking
                 </button>
             </div>

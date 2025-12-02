@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('correct_count');
             $table->integer('wrong_count');
             
-            $table->integer('duration');
+            $table->float('duration');
             $table->timestamps();
 
             $table->timestamp('completed_at')->nullable();

@@ -21,6 +21,7 @@ class QuizResource extends JsonResource
             'correct_count' => $this->correct_count,
             'wrong_count' => $this->wrong_count,
             'created_at' => $this->created_at->format('d/m/Y H:i'),
+            'completed_at' => $this->completed_at ? $this->completed_at->format('d/m/Y H:i') : null,
             
             'user' => [
                 'id' => $this->user->id ?? null,

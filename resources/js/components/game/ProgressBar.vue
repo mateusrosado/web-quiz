@@ -1,7 +1,7 @@
 <template>
-    <div class="h-2 md:h-3 w-full bg-gray-200 md:bg-white rounded-full overflow-hidden shadow-inner">
+    <div class="h-2 md:h-3 w-full bg-gray-100 rounded-full overflow-hidden shadow-inner">
         <div 
-            class="h-full bg-[#4ADE80] transition-all duration-500 ease-out"
+            class="h-full bg-[#FBC209] transition-all duration-500 ease-out"
             :style="{ width: percentage + '%' }"
         ></div>
     </div>
