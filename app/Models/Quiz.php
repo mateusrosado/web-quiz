@@ -11,9 +11,15 @@ class Quiz extends Model
     protected $fillable = [
         'user_id',
         'score',
+        'questions_list',
         'correct_count',
         'wrong_count',
-        'duration'
+        'duration',
+        'completed_at'
+    ];
+
+    protected $casts = [
+        'questions_list' => 'array', 
     ];
 
     public function user(): BelongsTo

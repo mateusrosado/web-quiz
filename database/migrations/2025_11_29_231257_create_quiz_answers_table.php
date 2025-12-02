@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             
             $table->foreignId('quiz_id')->constrained()->onDelete('cascade');
-            $table->foreignId('question_id')->constrained();
+            $table->foreignId('question_id')->constrained()->onDelete('cascade');
             $table->foreignId('option_id')->constrained();
             $table->boolean('is_correct');
 
+            $table->unique(['quiz_id', 'question_id']);
 
             $table->timestamps();
         });

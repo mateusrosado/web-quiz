@@ -1,19 +1,9 @@
 <template>
-    <div class="container">
-        <h1>Web Quiz</h1>
-        
-        <router-view></router-view>
-    </div>
+    <Header />
+    
+    <router-view></router-view>
 </template>
 
 <script setup>
-
+import Header from './components/Header.vue';
 </script>
-
-<style scoped>
-.container {
-    font-family: sans-serif;
-    padding: 20px;
-    text-align: center;
-}
-</style>

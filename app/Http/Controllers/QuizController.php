@@ -6,26 +6,39 @@ use App\Models\Option;
 use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\QuizAnswer;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
+use App\Http\Resources\QuestionResource;
+use App\Http\Resources\QuizResource;
+
+use App\Models\Configuration;
 
 class QuizController extends Controller
 {
     public function start(Request $request)
     {
+        $limit = (int) Configuration::get('quiz_question_limit', 10);
+
+        $questions = Question::with(['options' => function($query) {
+            $query->inRandomOrder();
+        }])->inRandomOrder()->take($limit)->get();
+
+        $questionIds = $questions->pluck('id')->toArray();
+
         $quiz = Quiz::create([
             'user_id' => $request->user()->id,
             'score' => 0,
             'correct_count' => 0,
             'wrong_count' => 0,
-            'duration' => 0
+            'duration' => 0,
+            'questions_list' => $questionIds
         ]);
 
-        $questions = Question::with('options')->inRandomOrder()->take(10)->get();
-
         return response()->json([
-            'quiz_id' => $quiz->id,
-            'questions' => $questions
+            'quiz' => new QuizResource($quiz),
+            'questions' => QuestionResource::collection($questions)
         ]);
     }
 
@@ -41,6 +54,22 @@ class QuizController extends Controller
                     ->where('user_id', $request->user()->id)
                     ->firstOrFail(); 
 
+        $allowedQuestions = $quiz->questions_list;
+
+        if (is_null($allowedQuestions) || !in_array($request->question_id, $allowedQuestions)) {
+            return response()->json([
+                'message' => 'Ação não permitida: Esta pergunta não pertence a este jogo ou o jogo é inválido.'
+            ], 403);
+        }
+
+        $alreadyAnswered = QuizAnswer::where('quiz_id', $quiz->id)
+                                        ->where('question_id', $request->question_id)
+                                        ->exists();
+
+        if ($alreadyAnswered) {
+            return response()->json(['message' => 'Você já respondeu esta pergunta.'], 409);
+        }
+
         $option = Option::find($request->option_id);
         $isCorrect = $option->is_correct;
 
@@ -50,13 +79,6 @@ class QuizController extends Controller
             'option_id' => $request->option_id,
             'is_correct' => $isCorrect
         ]);
-
-        if ($isCorrect) {
-            $quiz->increment('score', 10);
-            $quiz->increment('correct_count');
-        } else {
-            $quiz->increment('wrong_count');
-        }
 
         return response()->json([
             'is_correct' => $isCorrect,
@@ -70,7 +92,10 @@ class QuizController extends Controller
                     ->where('user_id', $request->user()->id)
                     ->firstOrFail();
 
-        $quiz->update(['duration' => $request->duration]);
+        $quiz->update([
+            'duration' => $request->duration,
+            'completed_at' => now()
+        ]);
         
         return response()->json([
             'message' => 'Quiz finalizado', 
@@ -81,12 +106,14 @@ class QuizController extends Controller
     public function ranking()
     {
         $ranking = Quiz::with('user:id,name')
+            ->whereNotNull('completed_at')
+            ->has('user')
             ->orderByDesc('score')
             ->orderBy('duration')
             ->take(10)
             ->get();
 
-        return response()->json($ranking);
+        return QuizResource::collection($ranking);
     }
 
     public function show(string $id, Request $request)
@@ -97,6 +124,6 @@ class QuizController extends Controller
             return response()->json(['message' => 'Não autorizado.'], 403);
         }
 
-        return response()->json($quiz);
+        return new QuizResource($quiz);
     }
 }

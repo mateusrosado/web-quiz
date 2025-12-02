@@ -7,6 +7,8 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
+use App\Models\Configuration;
+
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
@@ -21,8 +23,10 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Mateus',
             'email' => 'm@te.us',
-            'password' => Hash::make('1234'),
+            'password' => Hash::make('admin123'),
             'is_admin' => true
         ]);
+        Configuration::set('quiz_question_limit', 10);
+        Configuration::set('score_per_question', 10);
     }
 }

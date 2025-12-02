@@ -15,12 +15,16 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
+            $table->json('questions_list')->nullable();
+
             $table->integer('score');
             $table->integer('correct_count');
             $table->integer('wrong_count');
             
             $table->integer('duration');
             $table->timestamps();
+
+            $table->timestamp('completed_at')->nullable();
 
             $table->index(['score', 'duration']);
         });
